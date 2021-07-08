@@ -107,7 +107,7 @@ You add the &#39;&#39;list of publications&#39;&#39; to your [[inventory]]
 [[Ask something else-&gt;home]]</tw-passagedata><tw-passagedata pid="13" name="inventory" tags="" position="522,674" size="100,100">{(if: $inv&#39;s length &lt; 2)[
 You put your hands in your pockets but all you find is some lint and your &#39;&#39;phone&#39;&#39;]
 (else:)[
-Your inventory contains a (print: (joined: &quot;, &quot;, ...$inv)).
+Your inventory contains a (print: (joined: &quot;, \n&quot;, ...$inv)).
 ]}
 {(click: &quot;phone&quot;)[
 You look at your &#39;&#39;phone&#39;&#39;. There appear to be 544 unread e-mails. You decide to play &#39;&#39;snake&#39;&#39; instead.
