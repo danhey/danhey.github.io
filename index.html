@@ -545,13 +545,13 @@ setup.invitem["email"] = new Invitem({
 });
 
 setup.invitem["photo of Dan"] = new Invitem({
-    title : "photo of Dan",
+    title : "Photo of Dan",
     description : "A picture of Dan, not his best.",
     link : "dan_photo_use"
 });
 
 setup.invitem["jacket1"] = new Invitem({
-    title : "photo of Jacket",
+    title : "Photo of Jacket",
     description : "A picture of Jacket in his luxurious chair.",
     link : "jacket1_photo_use"
 });
@@ -563,7 +563,7 @@ setup.invitem["jacket2"] = new Invitem({
 });
 
 setup.invitem["publications"] = new Invitem({
-    title : "A list of publications",
+    title : "List of publications",
     description : "A rather scant list of publications by Dan.",
     link : "publications_use"
 });
@@ -572,6 +572,12 @@ setup.invitem["projects"] = new Invitem({
     title : "Somehow, a terminal of projects",
     description : "A list of Dan's projects",
     link : "projects_use"
+});
+
+setup.invitem["dan2"] = new Invitem({
+    title : "Photo of Dan being cool",
+    description : "At the ice rink",
+    link : "dan2_photo_use"
 });
 
 
@@ -716,7 +722,7 @@ Dan&#39;s desk slides aside to reveal a trap door, from which a large glass tube
 [[Maybe later|main]]</tw-passagedata><tw-passagedata pid="4" name="publications" tags="" position="699,700" size="100,100">Dan pulls out a sheet of paper from seemingly nowhere. &quot;Here&#39;s a list of some of my favourite works&quot;, he says, passing the sheet to you. &quot;For a complete list, check out my Google Scholar profile!&quot;
 
 [[Examine the paper]]
-[[Ask about Google Scholar]]</tw-passagedata><tw-passagedata pid="5" name="contact" tags="" position="900,649" size="100,100">Dan hands you a rather crumpled up piece of paper. It looks like a slip of paper from a fortune cookie. Dan looks abashed, &quot;I ran out of paper and CSS experience&quot;.
+[[Ask about Google Scholar]]</tw-passagedata><tw-passagedata pid="5" name="contact" tags="" position="896,724" size="100,100">Dan hands you a rather crumpled up piece of paper. It looks like a slip of paper from a fortune cookie. Dan looks abashed, &quot;I ran out of paper and CSS experience&quot;.
 
 &lt;&lt;nobr&gt;&gt;
     &lt;&lt;if not $player.has(&#39;email&#39;)&gt;&gt;    
@@ -811,7 +817,7 @@ In front of you, a computer scrolls over a list of projects. It seems like you c
     &lt;&lt;/if&gt;&gt;
 &lt;&lt;/nobr&gt;&gt;
 
-[[Ask something else|main]]</tw-passagedata><tw-passagedata pid="11" name="StoryInit" tags="" position="475,500" size="100,100">&lt;&lt;newinventory &#39;$player&#39; &#39;phone&#39;&gt;&gt;</tw-passagedata><tw-passagedata pid="12" name="phone_use" tags="" position="500,100" size="100,100">You scroll mindlessly through your phone. You notice that you have 504 unread emails. 
+[[Ask something else|main]]</tw-passagedata><tw-passagedata pid="11" name="StoryInit" tags="" position="475,500" size="100,100">&lt;&lt;newinventory &#39;$player&#39; &#39;phone&#39;&gt;&gt;</tw-passagedata><tw-passagedata pid="12" name="phone_use" tags="" position="558,0" size="100,100">You scroll mindlessly through your phone. You notice that you have 504 unread emails. You should be able to play Snake here but apparently Dan isn&#39;t good enough at HTML.
 
 [[Return|inventory]]</tw-passagedata><tw-passagedata pid="13" name="Why did you make your site like this?" tags="" position="875,175" size="100,100">&quot;Well...&quot;, Dan pauses, a thoughtful yet somehow vacant expression crossing his face. &quot;Because I can!&quot;
 
@@ -860,7 +866,7 @@ D.R. Hey et al., (2019),  Six new rapidly oscillating Ap stars in the Kepler lon
 
 [[Ask something else|main]]</tw-passagedata><tw-passagedata pid="17" name="How did you do it?" tags="" position="725,175" size="100,100">&quot;I&#39;m glad you asked!&quot;, Dan says. &quot;This website was built using the [[Twine software|https://twinery.org/]], with SugarCube macros from [[ChapelR|https://github.com/ChapelR/custom-macros-for-sugarcube-2]]&quot;.
 
-[[Nod in silent understanding|main]]</tw-passagedata><tw-passagedata pid="18" name="PassageFooter" tags="footer" position="349,499" size="100,100"></tw-passagedata><tw-passagedata pid="19" name="dan_photo_use" tags="" position="325,125" size="100,100">&lt;div id=&quot;map&quot;&gt;[img[https://raw.githubusercontent.com/danhey/danhey.github.io/master/images/profile.jpg]]&lt;/div&gt;
+[[Nod in silent understanding|main]]</tw-passagedata><tw-passagedata pid="18" name="PassageFooter" tags="footer" position="349,499" size="100,100"></tw-passagedata><tw-passagedata pid="19" name="dan_photo_use" tags="" position="324,49" size="100,100">&lt;div id=&quot;map&quot;&gt;[img[https://raw.githubusercontent.com/danhey/danhey.github.io/master/images/profile.jpg]]&lt;/div&gt;
 
 [[Return|inventory]]</tw-passagedata><tw-passagedata pid="20" name="more photos" tags="" position="1000,450" size="100,100">&quot;Here you go&quot;, Dan passes you another photo. &quot;This is Jacket&quot;.
 
@@ -886,9 +892,19 @@ D.R. Hey et al., (2019),  Six new rapidly oscillating Ap stars in the Kepler lon
 &lt;&lt;/nobr&gt;&gt;
 
 [[Ask for even more!]]
-[[That&#39;s enough for now|main]]</tw-passagedata><tw-passagedata pid="22" name="Ask for even more!" tags="" position="1125,600" size="100,100">&quot;You know, I&#39;m not made of photos&quot;. Dan looks grumpy now. Maybe you should ask again later...
+[[That&#39;s enough for now|main]]</tw-passagedata><tw-passagedata pid="22" name="Ask for even more!" tags="" position="1125,599" size="100,100">&quot;Here&#39;s me looking pro at the ice rink&quot;, Dan points, &quot;I&#39;m about to do a flawless triple axel&quot;
+&lt;div id=&quot;map&quot;&gt;
+[img[https://raw.githubusercontent.com/danhey/danhey.github.io/master/images/ice_skate.jpg]]&lt;/div&gt;
 
-[[Return|main]]</tw-passagedata><tw-passagedata pid="23" name="jacket1_photo_use" tags="" position="175,150" size="100,100">&lt;div id=&quot;map&quot;&gt;[img[https://raw.githubusercontent.com/danhey/danhey.github.io/master/images/cat1.jpg]]&lt;/div&gt;
+&lt;&lt;nobr&gt;&gt;
+    &lt;&lt;if not $player.has(&#39;dan2&#39;)&gt;&gt;    
+            You add the photo of Dan looking cool to your inventory.
+            &lt;&lt;pickup &#39;$player&#39; &#39;dan2&#39;&gt;&gt;
+    &lt;&lt;/if&gt;&gt;
+&lt;&lt;/nobr&gt;&gt;
+
+[[I NEED MORE]]
+[[That&#39;s enough..|main]]</tw-passagedata><tw-passagedata pid="23" name="jacket1_photo_use" tags="" position="175,150" size="100,100">&lt;div id=&quot;map&quot;&gt;[img[https://raw.githubusercontent.com/danhey/danhey.github.io/master/images/cat1.jpg]]&lt;/div&gt;
 
 [[Return|inventory]]</tw-passagedata><tw-passagedata pid="24" name="jacket2_photo_use" tags="" position="150,275" size="100,100">&lt;div id=&quot;map&quot;&gt;[img[https://raw.githubusercontent.com/danhey/danhey.github.io/master/images/cat2.jpg]]&lt;/div&gt;
 
@@ -910,7 +926,7 @@ D.R. Hey et al., (2019),  Six new rapidly oscillating Ap stars in the Kepler lon
 &lt;&lt;/linkreplace&gt;&gt;
 &lt;/div&gt;
 
-[[Return|inventory]]</tw-passagedata><tw-passagedata pid="26" name="email_use" tags="" position="613,102" size="100,100">[img[https://raw.githubusercontent.com/danhey/danhey.github.io/master/images/email.png]]
+[[Return|inventory]]</tw-passagedata><tw-passagedata pid="26" name="email_use" tags="" position="699,4" size="100,100">[img[https://raw.githubusercontent.com/danhey/danhey.github.io/master/images/email.png]]
 
 [[Return|inventory]]</tw-passagedata><tw-passagedata pid="27" name="hyperlink" tags="" position="495,938" size="100,100">&lt;&lt;goto &quot;Projects&quot;&gt;&gt;</tw-passagedata><tw-passagedata pid="28" name="projects_use" tags="" position="205,42" size="100,100">&lt;div id=&quot;crt&quot;&gt; 
 &lt;div class=&quot;terminal&quot;&gt;
@@ -939,6 +955,11 @@ D.R. Hey et al., (2019),  Six new rapidly oscillating Ap stars in the Kepler lon
 	
 &lt;/div&gt;
 &lt;/div&gt;
+
+[[Return|inventory]]</tw-passagedata><tw-passagedata pid="29" name="I NEED MORE" tags="" position="1133,754" size="100,100">&quot;You know, I&#39;m not made of photos&quot;. Dan looks grumpy now. Maybe you should ask again later...
+
+[[That&#39;s enough..|main]]</tw-passagedata><tw-passagedata pid="30" name="dan2_photo_use" tags="" position="444,0" size="100,100">&lt;div id=&quot;map&quot;&gt;
+[img[https://raw.githubusercontent.com/danhey/danhey.github.io/master/images/ice_skate.jpg]]&lt;/div&gt;
 
 [[Return|inventory]]</tw-passagedata></tw-storydata>
 	<script id="script-sugarcube" type="text/javascript">
