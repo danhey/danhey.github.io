@@ -408,7 +408,6 @@ html[data-debug-view] .debug.hidden .debug {
 
 
 #crt {
-    content: " ";
     display: block;
     background: linear-gradient(
         to bottom,
@@ -417,7 +416,6 @@ html[data-debug-view] .debug.hidden .debug {
     );
     background-size: 100% 8px;
     z-index: 2;
-    pointer-events: none;
 	border: 5px solid grey;
 	padding: 5px;
 }
@@ -718,8 +716,9 @@ Dan&#39;s desk slides aside to reveal a trap door, from which a large glass tube
 [[Maybe later|main]]</tw-passagedata><tw-passagedata pid="4" name="publications" tags="" position="699,700" size="100,100">Dan pulls out a sheet of paper from seemingly nowhere. &quot;Here&#39;s a list of some of my favourite works&quot;, he says, passing the sheet to you. &quot;For a complete list, check out my Google Scholar profile!&quot;
 
 [[Examine the paper]]
-[[Ask about Google Scholar]]</tw-passagedata><tw-passagedata pid="5" name="contact" tags="" position="900,650" size="100,100">Dan hands you a rather crumpled up piece of paper. It looks like a slip of paper from a fortune cookie. Dan looks abashed, &quot;I ran out of paper and CSS experience&quot;.
+[[Ask about Google Scholar]]</tw-passagedata><tw-passagedata pid="5" name="contact" tags="" position="900,649" size="100,100">Dan hands you a rather crumpled up piece of paper. It looks like a slip of paper from a fortune cookie. Dan looks abashed, &quot;I ran out of paper and CSS experience&quot;.
 
+&lt;&lt;nobr&gt;&gt;
     &lt;&lt;if not $player.has(&#39;email&#39;)&gt;&gt;    
         &lt;&lt;linkreplace &#39;Pick up the slightly crumpled paper.&#39;&gt;&gt;
             You uncrumple the paper.
@@ -730,6 +729,7 @@ Dan&#39;s desk slides aside to reveal a trap door, from which a large glass tube
 		&lt;&lt;else&gt;&gt;
 [img[https://raw.githubusercontent.com/danhey/danhey.github.io/master/images/email.png]]
     &lt;&lt;/if&gt;&gt;
+&lt;&lt;/nobr&gt;&gt;
 
 &quot;Alternatively, you can also leave a message for me!&quot;, Dan points to the textbox. 
 &lt;&lt;typesim &quot;Dan is such a cool guy! Wow, thanks for making this website!&quot;&gt;&gt;\
@@ -800,7 +800,7 @@ In front of you, a computer scrolls over a list of projects. It seems like you c
     &lt;&lt;/if&gt;&gt;
 &lt;&lt;/nobr&gt;&gt;
 
-[[Find your way back out|main]]</tw-passagedata><tw-passagedata pid="10" name="Uncrumple the card" tags="" position="927,839" size="100,100">&lt;&lt;nobr&gt;&gt;
+[[Find your way back out|main]]</tw-passagedata><tw-passagedata pid="10" name="Uncrumple the card" tags="" position="1043,926" size="100,100">&lt;&lt;nobr&gt;&gt;
     &lt;&lt;if not $player.has(&#39;slightly crumpled business card&#39;)&gt;&gt;    
         &lt;&lt;linkreplace &#39;Take the slightly crumpled business card.&#39;&gt;&gt;
             You add the slightly crumpled business card to your inventory..
