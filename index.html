@@ -32,17 +32,6 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 -->
-
-<!-- Global site tag (gtag.js) - Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=UA-144184844-1"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'UA-144184844-1');
-</script>
-
 <script id="script-libraries" type="text/javascript">
 if(document.head&&document.addEventListener&&document.querySelector&&Object.create&&Object.freeze&&JSON){document.documentElement.setAttribute("data-init", "loading");
 /*! @source http://purl.eligrey.com/github/classList.js/blob/1.2.20171210/classList.js */
@@ -416,7 +405,121 @@ html[data-debug-view] .debug.hidden .debug {
 @keyframes bang {
   from {
     box-shadow: 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white; } }
-</style><script role="script" id="twine-user-script" type="text/twine-javascript">class Invitem {
+
+
+#crt {
+    content: " ";
+    display: block;
+    background: linear-gradient(
+        to bottom,
+        rgba(18, 16, 16, 0) 50%,
+        rgba(0, 0, 0, 0.25) 50%
+    );
+    background-size: 100% 8px;
+    z-index: 2;
+    pointer-events: none;
+	border: 5px solid grey;
+	padding: 5px;
+}
+
+@keyframes textShadow {
+  0% {
+    text-shadow: 0.4389924193300864px 0 1px rgba(0,30,255,0.5), -0.4389924193300864px 0 1px rgba(255,0,80,0.3), 0 0 3px;
+  }
+  5% {
+    text-shadow: 2.7928974010788217px 0 1px rgba(0,30,255,0.5), -2.7928974010788217px 0 1px rgba(255,0,80,0.3), 0 0 3px;
+  }
+  /** etc */
+}
+
+.scanline {
+  	width: 100%
+	height: 100%
+    z-index: 8;
+    background: linear-gradient(
+        0deg,
+        rgba(0, 0, 0, 0) 0%,
+        rgba(255, 255, 255, 0.2) 10%,
+        rgba(0, 0, 0, 0.1) 100%
+    );
+    opacity: 0.1;
+    animation: scanline 10s linear infinite;
+}
+
+@keyframes scanline {
+    0% {
+        bottom: 100%;
+    }
+    80% {
+        bottom: 100%;
+    }
+    100% {
+        bottom: 0%;
+    }
+}
+
+@import url("https://fonts.googleapis.com/css?family=VT323&display=swap");
+
+.terminal {
+    font-family: "VT323", monospace;
+    text-transform: uppercase;
+  	color: #33FF33;
+}
+
+
+.blinking-cursor {
+  color: #33FF33;
+  -webkit-animation: 1s blink step-end infinite;
+  -moz-animation: 1s blink step-end infinite;
+  -ms-animation: 1s blink step-end infinite;
+  -o-animation: 1s blink step-end infinite;
+  animation: 1s blink step-end infinite;
+}
+
+@keyframes "blink" {
+  from, to {
+    color: transparent;
+  }
+  50% {
+    color: #33FF33;
+  }
+}
+
+@-moz-keyframes blink {
+  from, to {
+    color: transparent;
+  }
+  50% {
+    color: #33FF33;
+  }
+}
+
+@-webkit-keyframes "blink" {
+  from, to {
+    color: transparent;
+  }
+  50% {
+    color: #33FF33;
+  }
+}
+
+@-ms-keyframes "blink" {
+  from, to {
+    color: transparent;
+  }
+  50% {
+    color: #33FF33;
+  }
+}
+
+@-o-keyframes "blink" {
+  from, to {
+    color: transparent;
+  }
+  50% {
+    color: #33FF33;
+  }
+}</style><script role="script" id="twine-user-script" type="text/twine-javascript">class Invitem {
     constructor(config) {
         Object.assign(this, {
             title : "Invitem title not set",
@@ -465,6 +568,12 @@ setup.invitem["publications"] = new Invitem({
     title : "A list of publications",
     description : "A rather scant list of publications by Dan.",
     link : "publications_use"
+});
+
+setup.invitem["projects"] = new Invitem({
+    title : "Somehow, a terminal of projects",
+    description : "A list of Dan's projects",
+    link : "projects_use"
 });
 
 
@@ -557,7 +666,7 @@ Macro.add('fadeout', {
             .fadeOut(time);
 
     }
-});</script><tw-passagedata pid="1" name="main" tags="stars" position="625,500" size="200,100">&lt;&lt;if visited() is 1&gt;&gt;
+});</script><tw-passagedata pid="1" name="main" tags="stars" position="630,507" size="200,100">&lt;&lt;if visited() is 1&gt;&gt;
 	  The office is a neat little space, open and airy despite the stuffed filing cabinets and stale coffee on the desk. Sitting behind the desk is a… bird? Horse? Seahorse. Person. A person who is smiling rather brightly.
   &lt;&lt;fadein 2s 2s&gt;&gt;
 Before you can say anything, there&#39;s an explosion of @@.pyro;//confetti//@@.
@@ -606,7 +715,7 @@ Dan&#39;s desk slides aside to reveal a trap door, from which a large glass tube
 
 [[Get in!]]
 [[Express concern]]
-[[Maybe later|main]]</tw-passagedata><tw-passagedata pid="4" name="publications" tags="" position="700,700" size="100,100">Dan pulls out a sheet of paper from seemingly nowhere. &quot;Here&#39;s a list of some of my favourite works&quot;, he says, passing the sheet to you. &quot;For a complete list, check out my Google Scholar profile!&quot;
+[[Maybe later|main]]</tw-passagedata><tw-passagedata pid="4" name="publications" tags="" position="699,700" size="100,100">Dan pulls out a sheet of paper from seemingly nowhere. &quot;Here&#39;s a list of some of my favourite works&quot;, he says, passing the sheet to you. &quot;For a complete list, check out my Google Scholar profile!&quot;
 
 [[Examine the paper]]
 [[Ask about Google Scholar]]</tw-passagedata><tw-passagedata pid="5" name="contact" tags="" position="900,650" size="100,100">Dan hands you a rather crumpled up piece of paper. It looks like a slip of paper from a fortune cookie. Dan looks abashed, &quot;I ran out of paper and CSS experience&quot;.
@@ -622,7 +731,7 @@ Dan&#39;s desk slides aside to reveal a trap door, from which a large glass tube
 [img[https://raw.githubusercontent.com/danhey/danhey.github.io/master/images/email.png]]
     &lt;&lt;/if&gt;&gt;
 
-Alternatively, if you&#39;d like, you can also leave a message for me!
+&quot;Alternatively, you can also leave a message for me!&quot;, Dan points to the textbox. 
 &lt;&lt;typesim &quot;Dan is such a cool guy! Wow, thanks for making this website!&quot;&gt;&gt;\
 &lt;&lt;fadein 1s 1s&gt;&gt;
 Dan looks over your shoulder at the text, &quot;Thanks! That&#39;s such a nice thing to say.&quot;\
@@ -634,23 +743,64 @@ Dan looks over your shoulder at the text, &quot;Thanks! That&#39;s such a nice t
 
 &lt;&lt;listInventory &#39;player&#39;&gt;&gt;
 
-[[Return|main]]</tw-passagedata><tw-passagedata pid="7" name="Get in!" tags="" position="275,750" size="100,100">The tube closes up behind you with a click, and everything goes quiet. Or not quite. There is a low hum in the air, so faint you could almost think it&#39;s your imagination. You spot Dan waving at you through the glass. He makes an exaggerated gesture, tucking his elbows against his sides. When you do the same, the humming intensifies. Slowly, your vision goes white…
+[[Return|main]]</tw-passagedata><tw-passagedata pid="7" name="Get in!" tags="" position="276,750" size="100,100">The tube closes up behind you with a click, and everything goes quiet. Or not quite. There is a low hum in the air, so faint you could almost think it&#39;s your imagination. You spot Dan waving at you through the glass. He makes an exaggerated gesture, tucking his elbows against his sides. When you do the same, the humming intensifies. Slowly, your vision goes white…
 
-[[Skip theatrics|Projects]]</tw-passagedata><tw-passagedata pid="8" name="Express concern" tags="" position="500,800" size="100,100">&quot;Oh, there&#39;s absolutely no need to worry! The transportation system is rigorously tested and 100% safe!&quot;
+[[Skip theatrics|Projects]]</tw-passagedata><tw-passagedata pid="8" name="Express concern" tags="" position="485,806" size="100,100">&quot;Oh, there&#39;s absolutely no need to worry! The transportation system is rigorously tested and 100% safe!&quot;
 
 Dan smacks the side of the tube for emphasis. It lets out another burst of air, this one suspiciously like someone coughing.
 
 &quot;But if you&#39;re still really worried... This is just between you and me okay?&quot; Dan leans in, eyes darting around before they whisper in your ear. &quot;It&#39;s really just a hyperlink to the projects page with a little flavor text.  Very standard stuff. The webmaster just wanted to throw in some theatrics.&quot; When Dan pulls away, he has a bright smile on his face. &quot;And doesn&#39;t it look fun?&quot;
 
 [[Get in the tube|Get in!]]
-[[Insist on a regular hyperlink-&gt;Projects]]
-[[Come back later-&gt;main]]</tw-passagedata><tw-passagedata pid="9" name="Projects" tags="" position="350,925" size="100,100">You step out of the tube and find yourself in an unfamiliar environment. Dan is nowhere to be seen, but you can faintly detect the smell of stale coffee permeating the room. He must be nearby.
+[[Insist on a regular hyperlink-&gt;hyperlink]]
+[[Come back later-&gt;main]]</tw-passagedata><tw-passagedata pid="9" name="Projects" tags="" position="351,925" size="100,100">&lt;&lt;nobr&gt;&gt;
+&lt;&lt;if previous() isnot &quot;hyperlink&quot;&gt;&gt;You step out of the tube and find yourself in an unfamiliar environment.
+&lt;&lt;else&gt;&gt;
+The hyperlink takes you to an unfamiliar environment.
+&lt;&lt;/if&gt;&gt;
+&lt;&lt;/nobr&gt;&gt;
+
+Dan is nowhere to be seen, but you can faintly detect the smell of stale coffee permeating the room. He must be nearby.
 
 In front of you, a computer scrolls over a list of projects. It seems like you can interact with each project.
 
-Unfortunately, it looks like Dan hasn&#39;t added any projects yet.. Maybe you should [[check out his GitHub instead?|https://github.com/danhey]]
+&lt;div id=&quot;crt&quot;&gt; 
+&lt;div class=&quot;terminal&quot;&gt;
+\&gt; Software:
 
-[[Find your way back out|main]]</tw-passagedata><tw-passagedata pid="10" name="Uncrumple the card" tags="" position="900,800" size="100,100">&lt;&lt;nobr&gt;&gt;
+\&gt; [[Balmung|https://github.com/danhey/balmung]] - Blazin&#39; fast iterative prewhitening of time-series data.
+
+\&gt; [[Echelle|https://danhey.github.io/echelle/]] - Echelle diagrams! Who doesn&#39;t love them.
+
+\&gt; [[Maelstrom|https://danhey.github.io/maelstrom/]] - Foward modelling of orbits using pulsation timing.
+
+\&gt; [[Bunyip|https://github.com/danhey/bunyip]] - Some useful tools for fitting eclipsing binaries. 
+
+
+\&gt; Visualisations:
+
+\&gt; [[Eddy|https://danhey.github.io/Eddy/]] - A JavaScript applet to visualise time delay orbits!
+
+\&gt; [[TESSeb|https://danhey.github.io/tessEB/]] - An interactive period-magnitude diagram of the TESS eclipsing binaries.
+
+\&gt; [[CMDTess|https://danhey.github.io/CMDTess/]] - An interactive color-magnitude diagram of the entire TESS southern hemisphere.
+
+
+\&gt; END OF FILE 
+
+\&gt; &lt;span class=&quot;blinking-cursor&quot;&gt;|&lt;/span&gt;
+	
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;&lt;nobr&gt;&gt;
+    &lt;&lt;if not $player.has(&#39;projects&#39;)&gt;&gt;    
+            Somehow, you can take the terminal screen with you. Wow, how convenient! You add the list of projects to your inventory.
+            &lt;&lt;pickup &#39;$player&#39; &#39;projects&#39;&gt;&gt;
+    &lt;&lt;/if&gt;&gt;
+&lt;&lt;/nobr&gt;&gt;
+
+[[Find your way back out|main]]</tw-passagedata><tw-passagedata pid="10" name="Uncrumple the card" tags="" position="927,839" size="100,100">&lt;&lt;nobr&gt;&gt;
     &lt;&lt;if not $player.has(&#39;slightly crumpled business card&#39;)&gt;&gt;    
         &lt;&lt;linkreplace &#39;Take the slightly crumpled business card.&#39;&gt;&gt;
             You add the slightly crumpled business card to your inventory..
@@ -708,7 +858,7 @@ D.R. Hey et al., (2019),  Six new rapidly oscillating Ap stars in the Kepler lon
 
 &quot;This is just between you and me&quot;, Dan leans in close, his eyes darting to the door to make sure no one else is listening, &quot;I never really got the hang of ADS&quot;.
 
-[[Ask something else|main]]</tw-passagedata><tw-passagedata pid="17" name="How did you do it?" tags="" position="725,175" size="100,100">&quot;I&#39;m glad you asked!&quot;, Dan says. &quot;This website was built using the Twine software, with macros from ChapelR&quot;.
+[[Ask something else|main]]</tw-passagedata><tw-passagedata pid="17" name="How did you do it?" tags="" position="725,175" size="100,100">&quot;I&#39;m glad you asked!&quot;, Dan says. &quot;This website was built using the [[Twine software|https://twinery.org/]], with SugarCube macros from [[ChapelR|https://github.com/ChapelR/custom-macros-for-sugarcube-2]]&quot;.
 
 [[Nod in silent understanding|main]]</tw-passagedata><tw-passagedata pid="18" name="PassageFooter" tags="footer" position="349,499" size="100,100"></tw-passagedata><tw-passagedata pid="19" name="dan_photo_use" tags="" position="325,125" size="100,100">&lt;div id=&quot;map&quot;&gt;[img[https://raw.githubusercontent.com/danhey/danhey.github.io/master/images/profile.jpg]]&lt;/div&gt;
 
@@ -761,6 +911,34 @@ D.R. Hey et al., (2019),  Six new rapidly oscillating Ap stars in the Kepler lon
 &lt;/div&gt;
 
 [[Return|inventory]]</tw-passagedata><tw-passagedata pid="26" name="email_use" tags="" position="613,102" size="100,100">[img[https://raw.githubusercontent.com/danhey/danhey.github.io/master/images/email.png]]
+
+[[Return|inventory]]</tw-passagedata><tw-passagedata pid="27" name="hyperlink" tags="" position="495,938" size="100,100">&lt;&lt;goto &quot;Projects&quot;&gt;&gt;</tw-passagedata><tw-passagedata pid="28" name="projects_use" tags="" position="205,42" size="100,100">&lt;div id=&quot;crt&quot;&gt; 
+&lt;div class=&quot;terminal&quot;&gt;
+\&gt; Software:
+
+\&gt; [[Balmung|https://github.com/danhey/balmung]] - Blazin&#39; fast iterative prewhitening of time-series data.
+
+\&gt; [[Echelle|https://danhey.github.io/echelle/]] - Echelle diagrams! Who doesn&#39;t love them.
+
+\&gt; [[Maelstrom|https://danhey.github.io/maelstrom/]] - Foward modelling of orbits using pulsation timing.
+
+\&gt; [[Bunyip|https://github.com/danhey/bunyip]] - Some useful tools for fitting eclipsing binaries. 
+
+
+\&gt; Visualisations:
+
+\&gt; [[Eddy|https://danhey.github.io/Eddy/]] - A JavaScript applet to visualise time delay orbits!
+
+\&gt; [[TESSeb|https://danhey.github.io/tessEB/]] - An interactive period-magnitude diagram of the TESS eclipsing binaries.
+
+\&gt; [[CMDTess|https://danhey.github.io/CMDTess/]] - An interactive color-magnitude diagram of the entire TESS southern hemisphere.
+
+
+\&gt; END OF FILE 
+\&gt; &lt;span class=&quot;blinking-cursor&quot;&gt;|&lt;/span&gt;
+	
+&lt;/div&gt;
+&lt;/div&gt;
 
 [[Return|inventory]]</tw-passagedata></tw-storydata>
 	<script id="script-sugarcube" type="text/javascript">
