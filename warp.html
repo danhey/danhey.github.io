@@ -97,7 +97,7 @@ summary { cursor: pointer; font-size: 11px; text-transform: uppercase; letter-sp
 
   <div class="overlay tl">
     <h1>A <em>precessing</em> galactic warp</h1>
-    <p class="lede">Stars on circular orbits in a warped disc, seen from above the plane. The midplane rises on one side and dips on the other, its line of nodes twists outward, and the whole pattern turns slowly in the direction of rotation.</p>
+    <p class="lede">Stars on circular orbits in a warped disc, seen edge-on from beyond the Sun at true scale. The midplane rises on one side and dips on the other, its line of nodes twists outward, and the whole pattern turns slowly in the direction of rotation. Drag to tilt the view, or raise the vertical stretch.</p>
     <div class="hud" aria-live="off">
       <span>t = <b id="tOut">0</b> Myr</span>
       <span>warp pattern turns once every <b id="patOut">–</b></span>
@@ -143,11 +143,15 @@ summary { cursor: pointer; font-size: 11px; text-transform: uppercase; letter-sp
     </div>
     <div class="ctl">
       <label for="exag">Vertical stretch <output id="exagOut"></output></label>
-      <input type="range" id="exag" min="1" max="15" step="0.5" value="7">
+      <input type="range" id="exag" min="1" max="15" step="0.5" value="1">
+    </div>
+    <div class="ctl">
+      <label for="psize">Star size <output id="psizeOut"></output></label>
+      <input type="range" id="psize" min="0" max="3" step="0.1" value="1">
     </div>
     <div class="ctl">
       <label for="speed">Playback speed <output id="speedOut"></output></label>
-      <input type="range" id="speed" min="5" max="250" step="5" value="60">
+      <input type="range" id="speed" min="1" max="250" step="1" value="10">
     </div>
     <div class="ctl">
       <label for="colorBy">Colour stars by</label>
@@ -176,7 +180,7 @@ summary { cursor: pointer; font-size: 11px; text-transform: uppercase; letter-sp
       <div class="note">
         <p><b>Midplane.</b> Z<sub>w</sub> = h(R) sin[φ − φ<sub>w</sub>(R, t)], with h growing linearly beyond 8 kpc and φ<sub>w</sub> = φ<sub>w,0</sub> + (twist)(R − 12 kpc) + ω t. Stars move on circular orbits in a flat rotation curve of 220 km s⁻¹ and oscillate a little about the midplane.</p>
         <p><b>Defaults.</b> The LPV fit in the paper: h ≈ 0.54 kpc at 16 kpc, twist 14.3 deg kpc⁻¹, ω = 9.5 km s⁻¹ kpc⁻¹. This is an illustration, not a fit to the data. It has no growth term and no far-side constraint, and the outer disc is overpopulated so the warp is visible.</p>
-        <p><b>Reading it.</b> The galaxy turns clockwise seen from the north, as here. A star crosses the rising and falling halves of the warp at the rate Ω − ω, so a prograde precession slows its vertical oscillation. In the strip chart the dashed curve is the same star in a warp that stands still.</p>
+        <p><b>Reading it.</b> The galaxy turns clockwise seen from the north. A star crosses the rising and falling halves of the warp at the rate Ω − ω, so a prograde precession slows its vertical oscillation. In the strip chart the dashed curve is the same star in a warp that stands still.</p>
       </div>
     </details>
   </div>
@@ -207,11 +211,13 @@ summary { cursor: pointer; font-size: 11px; text-transform: uppercase; letter-sp
   const trace = $("trace"), tctx = trace.getContext("2d");
 
   const state = {
-    omega: 9.5, twist: 14.3, amp16: 0.54, exag: 7, speed: 60,
+    omega: 9.5, twist: 14.3, amp16: 0.54, exag: 1, speed: 10, psize: 1,
     colorBy: "z", frame: "inertial", trails: true, nodes: true, rings: true,
     playing: true, t: 0,
-    camAz: -2.45, camEl: 0.3, camDist: 42,
+    // edge-on, looking from beyond the Sun toward the centre (along the line of nodes at t = 0)
+    camAz: Math.PI / 2, camEl: 0, camDist: 42,
   };
+  const CAM0 = { camAz: state.camAz, camEl: state.camEl, camDist: state.camDist };
   const reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   if (reduced) state.playing = false;
 
@@ -337,8 +343,8 @@ summary { cursor: pointer; font-size: 11px; text-transform: uppercase; letter-sp
       bins[b].push(i);
     }
     ctx.globalCompositeOperation = "lighter";
-    const base = 0.9 * dpr;
-    for (let b = 0; b < NBIN; b++) {
+    const base = 0.9 * dpr * state.psize;
+    for (let b = 0; b < NBIN && state.psize > 0; b++) {
       ctx.fillStyle = binColor[b]; ctx.globalAlpha = 0.42;
       const L = bins[b];
       for (let j = 0; j < L.length; j++) {
@@ -353,9 +359,9 @@ summary { cursor: pointer; font-size: 11px; text-transform: uppercase; letter-sp
     // axis points at screen-plane angle pi - phi_bar and turns the same way as the disc.
     const phiBar = 37 * KMS_KPC_TO_RAD_MYR * t + 27 * Math.PI / 180 - fr;
     const cb = Math.cos(Math.PI - phiBar), sb = Math.sin(Math.PI - phiBar);
-    for (let i = 0; i < NB; i++) {
+    for (let i = 0; i < NB && state.psize > 0; i++) {
       project(bx[i] * cb - by[i] * sb, bx[i] * sb + by[i] * cb, bz[i] * Math.min(ex, 3));
-      const sz = 1.3 * dpr * (0.6 + P.s / focal * 22);
+      const sz = 1.3 * dpr * state.psize * (0.6 + P.s / focal * 22);
       ctx.fillRect(P.x, P.y, sz, sz);
     }
     ctx.globalAlpha = 1; ctx.globalCompositeOperation = "source-over";
@@ -452,6 +458,7 @@ summary { cursor: pointer; font-size: 11px; text-transform: uppercase; letter-sp
     $("twistOut").textContent = `${state.twist.toFixed(1)} deg kpc⁻¹`;
     $("ampOut").textContent = `${state.amp16.toFixed(2)} kpc`;
     $("exagOut").textContent = `×${state.exag}`;
+    $("psizeOut").textContent = state.psize > 0 ? `×${state.psize.toFixed(1)}` : "hidden";
     $("speedOut").textContent = `${state.speed} Myr s⁻¹`;
     const om = state.omega * KMS_KPC_TO_RAD_MYR, Om14 = (VC / 14) * KMS_KPC_TO_RAD_MYR;
     const pat = Math.abs(om) < 1e-9 ? Infinity : 2 * Math.PI / Math.abs(om);
@@ -470,6 +477,7 @@ summary { cursor: pointer; font-size: 11px; text-transform: uppercase; letter-sp
   });
   bindRange("omega", "omega"); bindRange("twist", "twist"); bindRange("amp", "amp16");
   bindRange("exag", "exag"); bindRange("speed", "speed");
+  $("psize").addEventListener("input", e => { state.psize = parseFloat(e.target.value); updateReadouts(); if (!state.playing) frame(state.t); });
   $("colorBy").addEventListener("change", e => { state.colorBy = e.target.value; updateReadouts(); if (!state.playing) frame(state.t); });
   $("frame").addEventListener("change", e => { state.frame = e.target.value; resetTrails(); if (!state.playing) frame(state.t); });
   $("trails").addEventListener("change", e => { state.trails = e.target.checked; resetTrails(); if (!state.playing) frame(state.t); });
@@ -521,7 +529,7 @@ summary { cursor: pointer; font-size: 11px; text-transform: uppercase; letter-sp
     state.camDist = Math.max(22, Math.min(110, state.camDist * (1 + Math.sign(e.deltaY) * 0.08)));
     if (!state.playing) frame(state.t);
   }, { passive: false });
-  sky.addEventListener("dblclick", () => { state.camAz = -2.45; state.camEl = 0.3; state.camDist = 42; if (!state.playing) frame(state.t); });
+  sky.addEventListener("dblclick", () => { Object.assign(state, CAM0); if (!state.playing) frame(state.t); });
 
   // ------------------------------------------------------------------ loop
   let last = performance.now();
