@@ -1,0 +1,541 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Precessing Warp</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: the simulation fills the window; title, readouts, legend, strip chart and a
+   collapsible control panel float over it. Interface in black, white and greys only. */
+:root {
+  --sky: #000000;
+  --glass: rgba(0, 0, 0, 0.62);
+  --rule: rgba(255, 255, 255, 0.16);
+  --rule-strong: rgba(255, 255, 255, 0.42);
+  --ink: #f4f4f4;
+  --muted: #9a9a9a;
+  --up: #ff6937;
+  --down: #468cff;
+  --display: "Instrument Serif", "Iowan Old Style", Georgia, serif;
+  --body: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --gap: 16px;
+  --panel-w: 310px;
+  color-scheme: dark;
+}
+html, body { height: 100%; background: var(--sky); color: var(--ink); overflow: hidden; }
+body { font-family: var(--body); font-size: 14px; line-height: 1.5; }
+
+.stage { position: fixed; inset: 0; background: radial-gradient(ellipse at 50% 50%, #111 0%, var(--sky) 65%); touch-action: none; }
+#sky { display: block; width: 100%; height: 100%; cursor: grab; }
+#sky:active { cursor: grabbing; }
+
+.overlay { position: absolute; pointer-events: none; }
+.overlay > * { pointer-events: auto; }
+.tl { top: calc(var(--gap) + env(safe-area-inset-top, 0px)); left: var(--gap); max-width: min(460px, calc(100% - 2 * var(--gap))); display: grid; gap: 8px; }
+h1 { font-family: var(--display); font-weight: 400; font-size: clamp(26px, 3.2vw, 38px); line-height: 1.05; margin: 0; letter-spacing: 0.005em; text-wrap: balance; }
+h1 em { font-style: italic; }
+.lede { margin: 0; color: var(--muted); font-size: 13px; max-width: 52ch; }
+.hud { font-family: var(--mono); font-size: 12px; color: var(--muted); display: grid; gap: 1px; font-variant-numeric: tabular-nums; pointer-events: none; }
+.hud b { color: var(--ink); font-weight: 500; }
+
+.tr { top: calc(var(--gap) + env(safe-area-inset-top, 0px)); right: var(--gap); display: grid; gap: 8px; justify-items: end; }
+.legend { display: grid; gap: 5px; justify-items: end; font-size: 12px; color: var(--muted); pointer-events: none; }
+.bar { width: 150px; height: 6px; border-radius: 1px; background: linear-gradient(90deg, var(--down), #9a9ca4, var(--up)); }
+.bar-labels { width: 150px; display: flex; justify-content: space-between; font-family: var(--mono); font-size: 11px; }
+.key { display: flex; gap: 6px; align-items: center; }
+.key i { display: inline-block; width: 18px; height: 2px; background: var(--ink); }
+
+.bl { left: var(--gap); bottom: calc(var(--gap) + env(safe-area-inset-bottom, 0px)); width: min(380px, calc(100% - 2 * var(--gap))); }
+.strip-title span { white-space: nowrap; }
+.strip {background: var(--glass); border: 1px solid var(--rule); border-radius: 4px; padding: 6px 8px 4px; pointer-events: none; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+.strip-title { font-size: 11px; color: var(--muted); display: flex; justify-content: space-between; gap: 8px; }
+.strip-title span:last-child { font-family: var(--mono); color: var(--ink); }
+#trace { display: block; width: 100%; height: 60px; }
+.hint { position: absolute; left: 50%; transform: translateX(-50%); bottom: calc(var(--gap) + env(safe-area-inset-bottom, 0px)); font-size: 11px; color: var(--muted); pointer-events: none; white-space: nowrap; }
+
+/* control panel, floating on the right */
+.panel { position: absolute; right: var(--gap); top: calc(var(--gap) + 150px + env(safe-area-inset-top, 0px)); bottom: calc(var(--gap) + env(safe-area-inset-bottom, 0px)); width: var(--panel-w); display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+.panel > * { pointer-events: auto; }
+.panel-toggle { align-self: flex-end; }
+.controls { overflow-y: auto; min-height: 0; display: grid; gap: 14px; padding: 14px; background: var(--glass); border: 1px solid var(--rule); border-radius: 6px; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+.ctl { display: grid; gap: 4px; min-width: 0; }
+.ctl > label, .ctl > .lab { display: flex; justify-content: space-between; gap: 8px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); }
+.ctl output { font-family: var(--mono); text-transform: none; letter-spacing: 0; color: var(--ink); font-variant-numeric: tabular-nums; }
+input[type=range] { width: 100%; accent-color: #ffffff; }
+input[type=checkbox] { accent-color: #ffffff; }
+select { width: 100%; background: #000; color: var(--ink); border: 1px solid var(--rule); border-radius: 4px; padding: 6px 8px; font: inherit; font-size: 13px; }
+.row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+button { font: inherit; font-size: 13px; color: var(--ink); background: rgba(0,0,0,0.4); border: 1px solid var(--rule); border-radius: 4px; padding: 5px 11px; cursor: pointer; }
+button:hover { border-color: var(--rule-strong); }
+button.primary { background: #ffffff; color: #000000; border-color: #ffffff; font-weight: 600; min-width: 76px; }
+button[aria-pressed="true"] { border-color: #ffffff; background: rgba(255,255,255,0.12); }
+button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible { outline: 2px solid #ffffff; outline-offset: 2px; }
+.check { display: flex; gap: 8px; align-items: center; font-size: 13px; color: var(--ink); }
+.checks { display: grid; gap: 4px; }
+details { border-top: 1px solid var(--rule); padding-top: 10px; }
+summary { cursor: pointer; font-size: 11px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); }
+.note { color: var(--muted); font-size: 12px; margin: 8px 0 0; display: grid; gap: 6px; }
+.note p { margin: 0; }
+.note b { color: var(--ink); font-weight: 500; }
+.panel.closed .controls { display: none; }
+
+@media (max-width: 760px) {
+  :root { --gap: 12px; }
+  .lede { display: none; }
+  .legend .key, .legend > span:last-child { display: none; }
+  .tr { top: calc(var(--gap) + 104px + env(safe-area-inset-top, 0px)); left: var(--gap); right: auto; justify-items: start; }
+  .legend { justify-items: start; }
+  .hint { display: none; }
+  .panel { left: var(--gap); right: var(--gap); width: auto; top: auto; max-height: 62%; }
+  .bl { bottom: calc(var(--gap) + 44px + env(safe-area-inset-bottom, 0px)); }
+  .panel:not(.closed) ~ .bl { display: none; }
+}
+</style>
+
+<div class="stage" id="stage">
+  <canvas id="sky" aria-label="Animated simulation of a warped, precessing galactic disc"></canvas>
+
+  <div class="overlay tl">
+    <h1>A <em>precessing</em> galactic warp</h1>
+    <p class="lede">Stars on circular orbits in a warped disc, seen from above the plane. The midplane rises on one side and dips on the other, its line of nodes twists outward, and the whole pattern turns slowly in the direction of rotation.</p>
+    <div class="hud" aria-live="off">
+      <span>t = <b id="tOut">0</b> Myr</span>
+      <span>warp pattern turns once every <b id="patOut">–</b></span>
+      <span>star at 14 kpc orbits once every <b id="orbOut">–</b></span>
+    </div>
+  </div>
+
+  <div class="overlay tr">
+    <div class="legend">
+      <span id="legTitle">height above the plane</span>
+      <div class="bar"></div>
+      <div class="bar-labels"><span id="legLo">below</span><span id="legHi">above</span></div>
+      <span class="key"><i></i>line of nodes</span>
+      <span>rings: midplane at 10–17.5 kpc</span>
+    </div>
+  </div>
+
+  <div class="panel" id="panel">
+    <button class="panel-toggle" id="panelToggle" type="button" aria-expanded="true" aria-controls="controls">Hide controls</button>
+  <div class="controls" id="controls">
+    <div class="ctl">
+      <span class="row">
+        <button class="primary" id="play" type="button">Pause</button>
+        <button id="restart" type="button">Restart</button>
+      </span>
+      <span class="row" role="group" aria-label="Presets">
+        <button type="button" data-preset="static">Static warp</button>
+        <button type="button" data-preset="lpv" aria-pressed="true">LPV fit</button>
+        <button type="button" data-preset="retro">Retrograde</button>
+      </span>
+    </div>
+    <div class="ctl">
+      <label for="omega">Precession rate ω <output id="omegaOut"></output></label>
+      <input type="range" id="omega" min="-20" max="30" step="0.5" value="9.5">
+    </div>
+    <div class="ctl">
+      <label for="twist">Twist of the nodes <output id="twistOut"></output></label>
+      <input type="range" id="twist" min="-20" max="30" step="0.5" value="14.3">
+    </div>
+    <div class="ctl">
+      <label for="amp">Amplitude at 16 kpc <output id="ampOut"></output></label>
+      <input type="range" id="amp" min="0" max="1.5" step="0.02" value="0.54">
+    </div>
+    <div class="ctl">
+      <label for="exag">Vertical stretch <output id="exagOut"></output></label>
+      <input type="range" id="exag" min="1" max="15" step="0.5" value="7">
+    </div>
+    <div class="ctl">
+      <label for="speed">Playback speed <output id="speedOut"></output></label>
+      <input type="range" id="speed" min="5" max="250" step="5" value="60">
+    </div>
+    <div class="ctl">
+      <label for="colorBy">Colour stars by</label>
+      <select id="colorBy">
+        <option value="z">height above the plane</option>
+        <option value="vz">vertical velocity</option>
+      </select>
+    </div>
+    <div class="ctl">
+      <label for="frame">Frame</label>
+      <select id="frame">
+        <option value="inertial">fixed (the warp turns)</option>
+        <option value="warp">turning with the warp</option>
+      </select>
+    </div>
+    <div class="ctl">
+      <span class="lab">Show</span>
+      <span class="checks">
+        <span class="check"><input type="checkbox" id="trails" checked><label for="trails">tracer stars</label></span>
+        <span class="check"><input type="checkbox" id="nodes" checked><label for="nodes">line of nodes</label></span>
+        <span class="check"><input type="checkbox" id="rings" checked><label for="rings">midplane rings</label></span>
+      </span>
+    </div>
+    <details>
+      <summary>About the model</summary>
+      <div class="note">
+        <p><b>Midplane.</b> Z<sub>w</sub> = h(R) sin[φ − φ<sub>w</sub>(R, t)], with h growing linearly beyond 8 kpc and φ<sub>w</sub> = φ<sub>w,0</sub> + (twist)(R − 12 kpc) + ω t. Stars move on circular orbits in a flat rotation curve of 220 km s⁻¹ and oscillate a little about the midplane.</p>
+        <p><b>Defaults.</b> The LPV fit in the paper: h ≈ 0.54 kpc at 16 kpc, twist 14.3 deg kpc⁻¹, ω = 9.5 km s⁻¹ kpc⁻¹. This is an illustration, not a fit to the data. It has no growth term and no far-side constraint, and the outer disc is overpopulated so the warp is visible.</p>
+        <p><b>Reading it.</b> The galaxy turns clockwise seen from the north, as here. A star crosses the rising and falling halves of the warp at the rate Ω − ω, so a prograde precession slows its vertical oscillation. In the strip chart the dashed curve is the same star in a warp that stands still.</p>
+      </div>
+    </details>
+  </div>
+  </div>
+
+  <div class="overlay bl">
+    <div class="strip">
+      <div class="strip-title"><span>Height of a star at 14 kpc</span><span id="crossOut">–</span></div>
+      <canvas id="trace"></canvas>
+    </div>
+  </div>
+  <div class="hint">drag to orbit · scroll to zoom · double-click to reset</div>
+</div>
+
+<script>
+(() => {
+  "use strict";
+  // ------------------------------------------------------------------ constants
+  const KMS_KPC_TO_RAD_MYR = 1.0227e-3;   // 1 km/s/kpc in rad/Myr
+  const VC = 220;                          // km/s, flat rotation curve
+  const R0 = 8.122;                        // kpc, Sun
+  const N = 26000, NB = 3200;              // disc and bulge stars
+  const RW = 8.0;                          // warp onset radius, kpc
+  const NBIN = 48;
+
+  const $ = id => document.getElementById(id);
+  const sky = $("sky"), ctx = sky.getContext("2d");
+  const trace = $("trace"), tctx = trace.getContext("2d");
+
+  const state = {
+    omega: 9.5, twist: 14.3, amp16: 0.54, exag: 7, speed: 60,
+    colorBy: "z", frame: "inertial", trails: true, nodes: true, rings: true,
+    playing: true, t: 0,
+    camAz: -2.45, camEl: 0.3, camDist: 42,
+  };
+  const reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (reduced) state.playing = false;
+
+  // ------------------------------------------------------------------ stars
+  let seed = 12345;
+  const rnd = () => (seed = (seed * 1664525 + 1013904223) >>> 0) / 4294967296;
+  const gauss = () => { let u = 0, v = 0; while (u === 0) u = rnd(); v = rnd(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); };
+
+  const R = new Float32Array(N), phi0 = new Float32Array(N), zeta = new Float32Array(N),
+        zph = new Float32Array(N), Om = new Float32Array(N), nu = new Float32Array(N), bright = new Float32Array(N);
+  for (let i = 0; i < N; i++) {
+    // half the stars follow an exponential disc, half are spread evenly over 8-19 kpc
+    // so that the warped outer disc is well populated (an illustration, not a density model)
+    let r;
+    if (rnd() < 0.45) { do { r = -3.2 * Math.log(rnd() * rnd()); } while (r < 1.5 || r > 19); }
+    else { r = Math.sqrt(64 + rnd() * (361 - 64)); }
+    R[i] = r;
+    // a hint of two-armed structure
+    const arm = rnd() < 0.45 ? 1 : 0;
+    let p = rnd() * 2 * Math.PI;
+    if (arm) { const k = Math.floor(rnd() * 2); p = k * Math.PI + 1.15 * Math.log(r) * 2.0 + 0.35 * gauss(); }
+    phi0[i] = p;
+    const sig = 0.05 + 0.03 * Math.max(0, r - 6);       // flaring disc, kpc
+    zeta[i] = Math.abs(gauss()) * sig;
+    zph[i] = rnd() * 2 * Math.PI;
+    Om[i] = (VC / r) * KMS_KPC_TO_RAD_MYR;               // rad / Myr
+    nu[i] = 2.6 * Om[i];
+    bright[i] = (0.55 + 0.45 * rnd()) * (r > 8 ? 1.25 : 0.8);
+  }
+  const bx = new Float32Array(NB), by = new Float32Array(NB), bz = new Float32Array(NB);
+  for (let i = 0; i < NB; i++) {
+    bx[i] = gauss() * 1.6; by[i] = gauss() * 0.7; bz[i] = gauss() * 0.45;   // a small bar, along x at t = 0
+  }
+
+  // tracer stars: picked radii between 11 and 17 kpc, spread in azimuth
+  const tracers = [11.5, 13, 14, 15, 16.5].map((r, k) => ({ r, p: 0.3 + k * 1.25, z: 0.015, hist: [] }));
+  const traceStar = { r: 14, p: -0.2 };
+
+  // ------------------------------------------------------------------ physics
+  const h = r => r <= RW ? 0 : state.amp16 * (r - RW) / (16 - RW);
+  const phiW = (r, t) => (state.twist * Math.PI / 180) * (r - 12) + state.omega * KMS_KPC_TO_RAD_MYR * t;
+  const frameRot = t => state.frame === "warp" ? state.omega * KMS_KPC_TO_RAD_MYR * t : 0;
+
+  // ------------------------------------------------------------------ colours
+  const stops = [[70,140,255],[120,170,250],[150,156,172],[250,150,100],[255,105,55]];
+  const binColor = [];
+  for (let b = 0; b < NBIN; b++) {
+    const x = b / (NBIN - 1) * (stops.length - 1), k = Math.min(stops.length - 2, Math.floor(x)), f = x - k;
+    const c = stops[k].map((v, j) => Math.round(v + (stops[k + 1][j] - v) * f));
+    binColor.push(`rgb(${c[0]},${c[1]},${c[2]})`);
+  }
+
+  // ------------------------------------------------------------------ camera
+  let W = 0, H = 0, dpr = 1;
+  function resize() {
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const r = sky.getBoundingClientRect();
+    W = sky.width = Math.round(r.width * dpr);
+    H = sky.height = Math.round(r.height * dpr);
+    const tr = trace.getBoundingClientRect();
+    trace.width = Math.round(tr.width * dpr); trace.height = Math.round(tr.height * dpr);
+  }
+  let ca, sa, ce, se, focal, cx = 0;
+  const panelEl = document.getElementById("panel");
+  function setCam() {
+    ca = Math.cos(state.camAz); sa = Math.sin(state.camAz);
+    ce = Math.cos(state.camEl); se = Math.sin(state.camEl);
+    // keep the disc centred in the space the side panel leaves free
+    const side = (!panelEl.classList.contains("closed") && window.innerWidth > 760) ? 326 * dpr : 0;
+    cx = (W - side) / 2;
+    focal = Math.min(W - side, H * 1.6) * 0.88;
+  }
+  // world (x, y, z) -> screen; returns depth too. Camera looks at the origin.
+  const P = { x: 0, y: 0, d: 0, s: 0 };
+  function project(x, y, z) {
+    const xr = x * ca - y * sa, yr = x * sa + y * ca;    // rotate about z
+    const yv = yr * ce - z * se, zv = yr * se + z * ce;   // tilt
+    const depth = state.camDist + yv;                     // distance along the view axis
+    const s = focal / depth;
+    P.x = cx + xr * s; P.y = H * 0.54 - zv * s; P.d = depth; P.s = s;
+    return P;
+  }
+
+  // ------------------------------------------------------------------ draw
+  const bins = Array.from({ length: NBIN }, () => []);
+  function frame(t) {
+    setCam();
+    ctx.globalCompositeOperation = "source-over";
+    ctx.clearRect(0, 0, W, H);
+
+    // reference circles in the plane Z = 0
+    ctx.lineWidth = 1 * dpr; ctx.strokeStyle = "rgba(255,255,255,0.13)";
+    ctx.setLineDash([2 * dpr, 4 * dpr]);
+    for (const rr of [5, 10, 15, 20]) {
+      ctx.beginPath();
+      for (let k = 0; k <= 120; k++) {
+        const a = k / 120 * 2 * Math.PI; project(-rr * Math.cos(a), rr * Math.sin(a), 0);
+        k ? ctx.lineTo(P.x, P.y) : ctx.moveTo(P.x, P.y);
+      }
+      ctx.stroke();
+    }
+    ctx.setLineDash([]);
+
+    const fr = frameRot(t), ex = state.exag, byVz = state.colorBy === "vz";
+    const zRange = Math.max(0.15, state.amp16 * 1.05), vRange = Math.max(2, state.amp16 * (VC / 16) * 1.05);
+    for (const b of bins) b.length = 0;
+    const om = state.omega * KMS_KPC_TO_RAD_MYR;
+    const xs = new Float32Array(N), ys = new Float32Array(N), ss = new Float32Array(N);
+    for (let i = 0; i < N; i++) {
+      const r = R[i], phi = phi0[i] + Om[i] * t, psi = phi - phiW(r, t), hr = h(r);
+      const osc = zeta[i] * Math.cos(nu[i] * t + zph[i]);
+      const z = hr * Math.sin(psi) + osc;
+      const pd = phi - fr;
+      project(-r * Math.cos(pd), r * Math.sin(pd), z * ex);
+      xs[i] = P.x; ys[i] = P.y; ss[i] = P.s;
+      let v;
+      if (byVz) {
+        const vz = hr * (Om[i] - om) * Math.cos(psi) / KMS_KPC_TO_RAD_MYR;  // km/s
+        v = vz / vRange;
+      } else v = z / zRange;
+      let b = Math.round((v * 0.5 + 0.5) * (NBIN - 1));
+      b = b < 0 ? 0 : b >= NBIN ? NBIN - 1 : b;
+      bins[b].push(i);
+    }
+    ctx.globalCompositeOperation = "lighter";
+    const base = 0.9 * dpr;
+    for (let b = 0; b < NBIN; b++) {
+      ctx.fillStyle = binColor[b]; ctx.globalAlpha = 0.42;
+      const L = bins[b];
+      for (let j = 0; j < L.length; j++) {
+        const i = L[j], sz = base * bright[i] * (0.6 + ss[i] / focal * 22);
+        ctx.fillRect(xs[i], ys[i], sz, sz);
+      }
+    }
+    // bulge and bar, turning with the inner disc
+    ctx.fillStyle = "rgb(235,235,235)"; ctx.globalAlpha = 0.3;
+    // bar: pattern speed 37 km/s/kpc, near end 27 deg ahead of the Sun-centre line at t = 0.
+    // Azimuth phi follows the disc convention (x = -R cos phi, y = R sin phi), so the bar's long
+    // axis points at screen-plane angle pi - phi_bar and turns the same way as the disc.
+    const phiBar = 37 * KMS_KPC_TO_RAD_MYR * t + 27 * Math.PI / 180 - fr;
+    const cb = Math.cos(Math.PI - phiBar), sb = Math.sin(Math.PI - phiBar);
+    for (let i = 0; i < NB; i++) {
+      project(bx[i] * cb - by[i] * sb, bx[i] * sb + by[i] * cb, bz[i] * Math.min(ex, 3));
+      const sz = 1.3 * dpr * (0.6 + P.s / focal * 22);
+      ctx.fillRect(P.x, P.y, sz, sz);
+    }
+    ctx.globalAlpha = 1; ctx.globalCompositeOperation = "source-over";
+
+    // the warped midplane, drawn as rings coloured by height
+    if (state.rings) {
+      ctx.lineWidth = 1.4 * dpr; ctx.globalAlpha = 0.85;
+      for (const rr of [10, 12.5, 15, 17.5]) {
+        let px = null, py = null;
+        for (let k = 0; k <= 160; k++) {
+          const a = k / 160 * 2 * Math.PI, z = h(rr) * Math.sin(a - phiW(rr, t)), ad = a - fr;
+          project(-rr * Math.cos(ad), rr * Math.sin(ad), z * ex);
+          if (px !== null) {
+            let b = Math.round(((z / zRange) * 0.5 + 0.5) * (NBIN - 1)); b = b < 0 ? 0 : b >= NBIN ? NBIN - 1 : b;
+            ctx.strokeStyle = binColor[b]; ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(P.x, P.y); ctx.stroke();
+          }
+          px = P.x; py = P.y;
+        }
+      }
+      ctx.globalAlpha = 1;
+    }
+
+    // line of nodes (ascending: solid, descending: dashed)
+    if (state.nodes) {
+      for (const [off, dash] of [[0, []], [Math.PI, [5 * dpr, 4 * dpr]]]) {
+        ctx.beginPath(); ctx.setLineDash(dash);
+        for (let k = 0; k <= 50; k++) {
+          const r = RW + 0.5 + k / 50 * (19 - RW - 0.5), a = phiW(r, t) + off - fr;
+          project(-r * Math.cos(a), r * Math.sin(a), 0);
+          k ? ctx.lineTo(P.x, P.y) : ctx.moveTo(P.x, P.y);
+        }
+        ctx.strokeStyle = "rgba(255,255,255,0.95)"; ctx.lineWidth = (off ? 1.2 : 2.2) * dpr; ctx.stroke();
+      }
+      ctx.setLineDash([]);
+    }
+
+    // tracer stars with trails
+    if (state.trails) {
+      for (const s of tracers) {
+        const phi = s.p + (VC / s.r) * KMS_KPC_TO_RAD_MYR * t, psi = phi - phiW(s.r, t);
+        const z = h(s.r) * Math.sin(psi), pd = phi - fr;
+        s.hist.push([-s.r * Math.cos(pd), s.r * Math.sin(pd), z]);
+        if (s.hist.length > 70) s.hist.shift();
+        ctx.beginPath();
+        for (let k = 0; k < s.hist.length; k++) {
+          const q = s.hist[k]; project(q[0], q[1], q[2] * ex);
+          k ? ctx.lineTo(P.x, P.y) : ctx.moveTo(P.x, P.y);
+        }
+        ctx.strokeStyle = "rgba(231,233,239,0.4)"; ctx.lineWidth = 1 * dpr; ctx.stroke();
+        project(-s.r * Math.cos(pd), s.r * Math.sin(pd), z * ex);
+        ctx.fillStyle = "#ffffff"; ctx.beginPath(); ctx.arc(P.x, P.y, 2.6 * dpr, 0, 2 * Math.PI); ctx.fill();
+      }
+    }
+
+    // Sun and Galactic Centre
+    const sunPhi = (VC / R0) * KMS_KPC_TO_RAD_MYR * t - fr;
+    project(-R0 * Math.cos(sunPhi), R0 * Math.sin(sunPhi), 0);
+    ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 1.6 * dpr;
+    ctx.beginPath(); ctx.arc(P.x, P.y, 4.5 * dpr, 0, 2 * Math.PI); ctx.stroke();
+    ctx.fillStyle = "#f4f4f4"; ctx.font = `${12 * dpr}px "IBM Plex Sans", Arial, sans-serif`;
+    ctx.fillText("Sun", P.x + 8 * dpr, P.y - 6 * dpr);
+
+    drawTrace(t);
+  }
+
+  // strip chart: Z(t) of one star at 14 kpc over the last 1.2 Gyr, with the static-warp case dashed
+  function drawTrace(t) {
+    const w = trace.width, hgt = trace.height, span = 1200;
+    tctx.clearRect(0, 0, w, hgt);
+    tctx.strokeStyle = "rgba(255,255,255,0.25)"; tctx.lineWidth = 1 * dpr;
+    tctx.beginPath(); tctx.moveTo(0, hgt / 2); tctx.lineTo(w, hgt / 2); tctx.stroke();
+    const amp = Math.max(h(traceStar.r), 1e-3), Omr = (VC / traceStar.r) * KMS_KPC_TO_RAD_MYR;
+    for (const [stat, style, dash] of [[true, "rgba(255,255,255,0.45)", [4 * dpr, 3 * dpr]], [false, "#ffffff", []]]) {
+      tctx.beginPath(); tctx.setLineDash(dash);
+      for (let k = 0; k <= 200; k++) {
+        const tt = t - span + k / 200 * span;
+        const pw = (state.twist * Math.PI / 180) * (traceStar.r - 12) + (stat ? 0 : state.omega * KMS_KPC_TO_RAD_MYR * tt);
+        const z = h(traceStar.r) * Math.sin(traceStar.p + Omr * tt - pw);
+        const X = k / 200 * w, Y = hgt / 2 - (z / amp) * (hgt * 0.4);
+        k ? tctx.lineTo(X, Y) : tctx.moveTo(X, Y);
+      }
+      tctx.strokeStyle = style; tctx.lineWidth = (stat ? 1 : 1.6) * dpr; tctx.stroke();
+    }
+    tctx.setLineDash([]);
+  }
+
+  // ------------------------------------------------------------------ readouts
+  function fmtPeriod(myr) {
+    if (!isFinite(myr) || myr > 1e5) return "never";
+    return myr >= 1000 ? `${(myr / 1000).toFixed(2)} Gyr` : `${Math.round(myr)} Myr`;
+  }
+  function updateReadouts() {
+    $("omegaOut").textContent = `${state.omega.toFixed(1)} km s⁻¹ kpc⁻¹`;
+    $("twistOut").textContent = `${state.twist.toFixed(1)} deg kpc⁻¹`;
+    $("ampOut").textContent = `${state.amp16.toFixed(2)} kpc`;
+    $("exagOut").textContent = `×${state.exag}`;
+    $("speedOut").textContent = `${state.speed} Myr s⁻¹`;
+    const om = state.omega * KMS_KPC_TO_RAD_MYR, Om14 = (VC / 14) * KMS_KPC_TO_RAD_MYR;
+    const pat = Math.abs(om) < 1e-9 ? Infinity : 2 * Math.PI / Math.abs(om);
+    $("patOut").textContent = fmtPeriod(pat) + (state.omega < 0 ? " (backwards)" : "");
+    $("orbOut").textContent = fmtPeriod(2 * Math.PI / Om14);
+    $("crossOut").textContent = `one up-and-down every ${fmtPeriod(2 * Math.PI / Math.abs(Om14 - om))}`;
+    const vz = state.colorBy === "vz";
+    $("legTitle").textContent = vz ? "vertical velocity" : "height above the plane";
+    $("legLo").textContent = vz ? "moving down" : "below";
+    $("legHi").textContent = vz ? "moving up" : "above";
+  }
+
+  // ------------------------------------------------------------------ controls
+  const bindRange = (id, key) => $(id).addEventListener("input", e => {
+    state[key] = parseFloat(e.target.value); clearPreset(); updateReadouts(); resetTrails(); if (!state.playing) frame(state.t);
+  });
+  bindRange("omega", "omega"); bindRange("twist", "twist"); bindRange("amp", "amp16");
+  bindRange("exag", "exag"); bindRange("speed", "speed");
+  $("colorBy").addEventListener("change", e => { state.colorBy = e.target.value; updateReadouts(); if (!state.playing) frame(state.t); });
+  $("frame").addEventListener("change", e => { state.frame = e.target.value; resetTrails(); if (!state.playing) frame(state.t); });
+  $("trails").addEventListener("change", e => { state.trails = e.target.checked; resetTrails(); if (!state.playing) frame(state.t); });
+  $("nodes").addEventListener("change", e => { state.nodes = e.target.checked; if (!state.playing) frame(state.t); });
+  $("rings").addEventListener("change", e => { state.rings = e.target.checked; if (!state.playing) frame(state.t); });
+  const toggleBtn = $("panelToggle");
+  const setPanel = open => {
+    panelEl.classList.toggle("closed", !open);
+    toggleBtn.textContent = open ? "Hide controls" : "Controls";
+    toggleBtn.setAttribute("aria-expanded", String(open));
+    resize(); frame(state.t);
+  };
+  toggleBtn.addEventListener("click", () => setPanel(panelEl.classList.contains("closed")));
+  if (window.innerWidth <= 760) { panelEl.classList.add("closed"); toggleBtn.textContent = "Controls"; toggleBtn.setAttribute("aria-expanded", "false"); }
+
+  const playBtn = $("play");
+  const setPlay = on => { state.playing = on; playBtn.textContent = on ? "Pause" : "Play"; };
+  playBtn.addEventListener("click", () => setPlay(!state.playing));
+  $("restart").addEventListener("click", () => { state.t = 0; resetTrails(); if (!state.playing) frame(0); });
+
+  const presets = {
+    static: { omega: 0, twist: 14.3, amp16: 0.54 },
+    lpv: { omega: 9.5, twist: 14.3, amp16: 0.54 },
+    retro: { omega: -2.1, twist: 14.3, amp16: 0.54 },
+  };
+  function clearPreset() { document.querySelectorAll("[data-preset]").forEach(b => b.setAttribute("aria-pressed", "false")); }
+  document.querySelectorAll("[data-preset]").forEach(btn => btn.addEventListener("click", () => {
+    const p = presets[btn.dataset.preset];
+    Object.assign(state, p);
+    $("omega").value = p.omega; $("twist").value = p.twist; $("amp").value = p.amp16;
+    clearPreset(); btn.setAttribute("aria-pressed", "true");
+    updateReadouts(); resetTrails(); if (!state.playing) frame(state.t);
+  }));
+  function resetTrails() { for (const s of tracers) s.hist.length = 0; }
+
+  // drag to orbit, wheel to zoom, double-click to reset
+  let drag = null;
+  sky.addEventListener("pointerdown", e => { drag = { x: e.clientX, y: e.clientY, az: state.camAz, el: state.camEl }; sky.setPointerCapture(e.pointerId); });
+  sky.addEventListener("pointermove", e => {
+    if (!drag) return;
+    state.camAz = drag.az - (e.clientX - drag.x) * 0.006;
+    state.camEl = Math.max(-1.45, Math.min(1.45, drag.el + (e.clientY - drag.y) * 0.005));
+    if (!state.playing) frame(state.t);
+  });
+  sky.addEventListener("pointerup", () => { drag = null; });
+  sky.addEventListener("pointercancel", () => { drag = null; });
+  sky.addEventListener("wheel", e => {
+    e.preventDefault();
+    state.camDist = Math.max(22, Math.min(110, state.camDist * (1 + Math.sign(e.deltaY) * 0.08)));
+    if (!state.playing) frame(state.t);
+  }, { passive: false });
+  sky.addEventListener("dblclick", () => { state.camAz = -2.45; state.camEl = 0.3; state.camDist = 42; if (!state.playing) frame(state.t); });
+
+  // ------------------------------------------------------------------ loop
+  let last = performance.now();
+  function loop(now) {
+    const dt = Math.min(0.1, (now - last) / 1000); last = now;
+    if (state.playing) state.t += dt * state.speed;
+    if (state.playing || drag) frame(state.t);
+    $("tOut").textContent = Math.round(state.t).toLocaleString("en-US");
+    requestAnimationFrame(loop);
+  }
+  window.addEventListener("resize", () => { resize(); frame(state.t); });
+  resize(); updateReadouts(); setPlay(state.playing); frame(state.t);
+  requestAnimationFrame(loop);
+})();
+</script>
+
+</body></html>
